@@ -224,7 +224,7 @@ All the boolean options above can be specified with or without a value, for exam
 
 ## Telemetry
 
-Cloudflare collects telemetry about your usage of `create-cloudflare` to improve the experience. Read more about our data policy at [https://developers.cloudflare.com/workers/telemetry](https://developers.cloudflare.com/workers/telemetry).
+Cloudflare collects telemetry about your usage of `create-cloudflare` to improve the experience. Read more about our data policy at [/workers/telemetry](/workers/telemetry).
 
 You can opt-out if you'd not like to share any information.
 
@@ -233,6 +233,12 @@ You can opt-out if you'd not like to share any information.
 	pkg="cloudflare@latest"
 	args="telemetry disable"
 />
+
+You can also opt-out using an environment variable:
+
+```
+CREATE_CLOUDFLARE_TELEMETRY_DISABLED=1
+```
 
 You can check the status of telemetry collection at any time.
 
