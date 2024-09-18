@@ -16,24 +16,27 @@ import {
 	PackageManagers,
 } from "~/components";
 
-Projects with assets can be created and edited using the [Wrangler CLI](/workers/wrangler/) or by connecting to your Worker to a Git provider[link to CI docs]. You cannot upload or edit a Worker with assets through the Cloudflare dashboard.
+This guide will instruct you through setting up and deploying a static site, dynamic sites and full-stack application from scratch on Workers. You may prefer to build your website from scratch if:
+
+- You're interested in learning by implementing core functionalities on your own.
+- You're working on a simple project where a framework might be overkill.
+- You want to optimize for performance by minimizing external dependencies.
+- You require complete control over every aspect of the application.
+
+Alternativley, you use can a number of popular frameworks(LINK) that come with ready-to-use components, a pre-defined structured architecture, and community support. View framework specific guides(LINK) to get started using a framework.
 
 # Deploying a Static Site
 
 This guide will instruct you through setting up and deploying a static site on Workers.
 
-## Create using the CLI
+### 1. Create a new Worker project using the CLI
 
-[C3 (`create-cloudflare-cli`)](https://github.com/cloudflare/workers-sdk/tree/main/packages/create-cloudflare) is a command-line tool designed to help you set up and deploy new applications to Cloudflare.
-
-### 1. Create a new Worker project
-
-Open a terminal window and run C3 to create your Worker project:
+[C3 (`create-cloudflare-cli`)](https://github.com/cloudflare/workers-sdk/tree/main/packages/create-cloudflare) is a command-line tool designed to help you set up and deploy new applications to Cloudflare. Open a terminal window and run C3 to create your Worker project:
 
 <PackageManagers
 	type="create"
 	pkg="cloudflare@latest"
-	args={("my-static-site", "experimental")}
+	args={"my-static-site --experimental"}
 />
 
 <Render
@@ -41,8 +44,8 @@ Open a terminal window and run C3 to create your Worker project:
 	product="workers"
 	params={{
 		one: "Hello World example",
-		two: "Hello World Worker with Assets",
-		three: "JavaScript",
+		two: "Hello World Static Site",
+		three: "TypeScript",
 	}}
 />
 
@@ -64,17 +67,11 @@ npx wrangler deploy
 
 #### Routing
 
-Assets are served based on file based routing. Navigate to `my-static-site.<SUBDOMAIN>.workers.dev`, in order serve the `index.html` file in your root directory. If a request is made to a path that does not match a file in your directory, Clouflare will respond with a 404.
-
-Learn more about [routing configuration](/workers/frameworks/configuration/).
-
-## Connecting an existing application from Git
-
-TO-DO
+Assets are served based on file based routing. Learn more about [assets routing configuration and defaults](/workers/frameworks/configuration/).
 
 # Deploying a Dynamic Site
 
-This guide will instruct you through setting up and deploying a dynamic site, including websites with server-side rendered (SSR) content or full stack applications on Workers.
+This guide will instruct you through setting up and deploying a dynamic site, including websites using server-side rendering (SSR).
 
 [C3 (`create-cloudflare-cli`)](https://github.com/cloudflare/workers-sdk/tree/main/packages/create-cloudflare) is a command-line tool designed to help you set up and deploy new applications to Cloudflare.
 
@@ -85,7 +82,7 @@ Open a terminal window and run C3 to create your Worker project:
 <PackageManagers
 	type="create"
 	pkg="cloudflare@latest"
-	args={"my-dynamic-site"}
+	args={"my-dynamic-site --experimental"}
 />
 
 <Render
@@ -93,8 +90,8 @@ Open a terminal window and run C3 to create your Worker project:
 	product="workers"
 	params={{
 		one: "Hello World example",
-		two: "Hello World Dynamic Website",
-		three: "JavaScript",
+		two: "Hello World Dynamic Site",
+		three: "TypeScript",
 	}}
 />
 
@@ -116,10 +113,89 @@ npx wrangler deploy
 
 #### Routing
 
-Similar to static sites, when serving assets, dynamic sites also follow file based routing. If a request is made to a path that does not match a file in your directory, instead of serving a 404 response, the request will be handled by the server-side code in your Worker.
+When serving assets, dynamic sites also follow file based routing. If a request is made to a path that does not match a file in your directory, instead of serving a 404 response, the request will be handled by the server-side code in your Worker. Learn more about [assets routing configuration and defaults](/workers/frameworks/configuration/).
 
-Learn more about [routing configuration](/workers/frameworks/configuration/).
+# Deploying a full-stack application
 
-## Connecting an existing application from Git
+This guide will instruct you through setting up and deploying a full stack application that queries data from [D1](/d1).
 
-TO-DO
+[C3 (`create-cloudflare-cli`)](https://github.com/cloudflare/workers-sdk/tree/main/packages/create-cloudflare) is a command-line tool designed to help you set up and deploy new applications to Cloudflare.
+
+### 1. Create a new Worker project
+
+Open a terminal window and run C3 to create your Worker project:
+
+<PackageManagers
+	type="create"
+	pkg="cloudflare@latest"
+	args={"my-fullstack-site --experimental"}
+/>
+
+<Render
+	file="c3-post-run-steps"
+	product="workers"
+	params={{
+		one: "Hello World example",
+		two: "Hello World Dynamic Site",
+		three: "TypeScript",
+	}}
+/>
+
+### 2. Create your D1 database
+
+In this step, you will set up your D1 local and remote(production) database via the `wrangler` CLI.
+
+a. Open your terminal and run the following command:
+
+```sh
+npx wrangler d1 create my-fullstack-site-db
+```
+
+b. Bind the database to your Worker by adding the resulting wrangler output to your project's `wrangler.toml` file. For example:
+
+```
+[[d1_databases]]
+binding = "DB" # i.e. available in your Worker on env.DB
+database_name = "my-fullstack-site-db"
+database_id = "__YOUR_D1_DATABASE_ID__"
+```
+
+c. Create a table and add some sample data
+
+Create a users table
+
+```
+wrangler d1 execute my-fullstack-site-db \
+ --command "CREATE TABLE IF NOT EXISTS users ( user_id INTEGER PRIMARY KEY, email_address TEXT, created_at INTEGER, deleted INTEGER);"
+```
+
+Add some entries to the users table
+
+```
+wrangler d1 execute my-fullstack-site-db \
+ --command "INSERT INTO users (email_address, deleted) VALUES('alice@example.com', FALSE),('bob@example.com', TRUE),('carol@example.com', FALSE),('dave@example.com', TRUE),('eve@example.com', FALSE);"
+```
+
+### 3. Develop locally
+
+D1 has fully-featured support for local development, refer to [D1 local development](/d1/build-with-d1/local-development/) to learn about how to configure your database for local development.
+
+Run the [`wrangler dev`](/workers/wrangler/commands/#dev) command in the project directory to start a local server for developing your Worker. This will allow you to preview your Worker locally during development.
+
+```sh
+npx wrangler dev
+```
+
+## 4. Deploy your Project
+
+Deploy your Worker via Wrangler to a `*.workers.dev` subdomain or configure a [Custom Domain](/workers/configuration/routing/custom-domains/).
+
+```sh
+npx wrangler deploy
+```
+
+#### Routing
+
+When serving assets, full-stack sites also follow file based routing. If a request is made to a path that does not match a file in your directory, instead of serving a 404 response, the request will be handled by the server-side code in your Worker. Learn more about [assets routing configuration and defaults](/workers/frameworks/configuration/).
+
+Projects with assets can be created and edited using the [Wrangler CLI](/workers/wrangler/) or by connecting to your Worker to a Git provider[link to CI docs]. You cannot upload or edit a Worker with assets through the Cloudflare dashboard.
