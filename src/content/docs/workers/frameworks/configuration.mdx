@@ -22,11 +22,7 @@ import {
 
 ## Routing
 
-:::note
-We are working on default config options. Once that is implemented, this default routing logic will change.
-:::
-
-Static sites contain only static assets, without any server side JavaScript.
+Static sites contain only static assets, without any server-side JavaScript.
 
 Assets are served based on file based routing. Any requests that don't match a file are unhandled and will lead to a 404 response. For example, take the following project:
 
@@ -65,7 +61,7 @@ File based routing would map incoming paths to the following files:
 
 ## Routing
 
-Static sites contain static assets as well as server-side code to dynamically render webpages. Dynamic sites can take advantage of any Workers [bindings](/workers/runtime-apis) to build stateful, full-stack applications.
+Static sites contain static assets as well as server-side code that can be used to render webpages server-side render (SSR) or create full-stack applications on Workers. Build stateful full-stack applications by using Workers [bindings](/workers/runtime-apis) to connect to [data or storage products](/workers/platform/storage-options/).
 
 Requests are first served based on file based routing. Any requests that don't match a file will invoke your dynamic code. For example, take the following project:
 
